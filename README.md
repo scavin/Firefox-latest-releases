@@ -186,7 +186,7 @@ crontab -l
 
 ## 🔗 相关链接
 
-- [Mozilla Firefox官网](https://www.mozilla.org/firefox/)
+- [Mozilla Firefox官网](https://www.firefox.com/zh-CN/)
 - [Mozilla FTP服务器](https://ftp.mozilla.org/pub/firefox/releases/)
 - [Firefox版本发布说明](https://www.mozilla.org/firefox/releases/)
 
