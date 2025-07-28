@@ -534,8 +534,7 @@
             async tryMultipleSources() {
                 const sources = [
                     () => this.getVersionFromMozillaProduct(),
-                    () => this.getVersionFromFTPDirectory(),
-                    () => this.getVersionFromGitHub()
+                    () => this.getVersionFromFTPDirectory()
                 ];
                 
                 for (const source of sources) {
@@ -569,29 +568,9 @@
                 }
             }
             
-            async getVersionFromGitHub() {
-                const response = await fetch('https://api.github.com/repos/mozilla/gecko-dev/releases/latest');
-                if (!response.ok) throw new Error('GitHub API failed');
-                
-                const data = await response.json();
-                // GitHub的标签格式通常是 FIREFOX_XXX_X_X_RELEASE
-                const tag = data.tag_name;
-                if (tag && tag.includes('FIREFOX_')) {
-                    // 提取版本号，例如从 FIREFOX_141_0_RELEASE 提取 141.0
-                    const versionMatch = tag.match(/FIREFOX_(\d+)_(\d+)(?:_(\d+))?/);
-                    if (versionMatch) {
-                        const major = versionMatch[1];
-                        const minor = versionMatch[2] || '0';
-                        const patch = versionMatch[3] || '';
-                        return patch ? `${major}.${minor}.${patch}` : `${major}.${minor}`;
-                    }
-                }
-                return null;
-            }
-            
             async getVersionFromMozilla() {
                 try {
-                    // 如果所有API都失败，使用手动维护的版本号（需要定期更新）
+                    // 如果主API失败，使用手动维护的版本号（需要定期更新）
                     const commonVersion = "141.0"; // 根据你提到的最新版本更新
                     this.displayVersionInfo(commonVersion + " (预设版本，建议访问官网确认)");
                     this.generateDownloadLinks(commonVersion);
@@ -748,20 +727,6 @@
                     }
                 } catch (error) {
                     console.log('Mozilla API 失败:', error.message);
-                }
-                
-                try {
-                    // 备用：GitHub API
-                    const response = await fetch('https://api.github.com/repos/mozilla/gecko-dev/releases/latest');
-                    if (response.ok) {
-                        const data = await response.json();
-                        const versionMatch = data.tag_name.match(/(\d+\.\d+(?:\.\d+)?)/);
-                        if (versionMatch) {
-                            return versionMatch[1];
-                        }
-                    }
-                } catch (error) {
-                    console.log('GitHub API 失败:', error.message);
                 }
                 
                 return null;

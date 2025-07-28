@@ -42,20 +42,8 @@ get_latest_firefox_version() {
         return 0
     fi
     
-    # 方法2: GitHub API备用
-    log "Mozilla API失败，尝试GitHub API..."
-    VERSION=$(curl -s "https://api.github.com/repos/mozilla/gecko-dev/releases/latest" | \
-              grep -o '"tag_name":"[^"]*"' | \
-              cut -d'"' -f4 | \
-              grep -o '[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?')
     
-    if [ -n "$VERSION" ] && [[ "$VERSION" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
-        log "从GitHub API获取到版本: $VERSION"
-        echo "$VERSION"
-        return 0
-    fi
-    
-    error_exit "无法从任何API获取版本信息"
+    error_exit "无法从Mozilla API获取版本信息"
 }
 
 # 获取HTML文件中的当前版本

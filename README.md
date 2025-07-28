@@ -7,7 +7,7 @@
 - **🔄 智能缓存**：24小时缓存机制，减少API调用
 - **🚀 自动更新**：客户端每日自动检查新版本
 - **📱 响应式设计**：支持各种设备屏幕
-- **🛡️ 多重备用**：Mozilla官方API + GitHub API备用
+- **🛡️ 可靠数据源**：Mozilla官方API，无依赖第三方
 - **⚡ 即时显示**：缓存数据秒级加载
 - **🎯 精准下载**：支持Windows、macOS、Linux多平台
 
@@ -23,21 +23,20 @@
 
 ### 前端特性
 - **纯HTML/CSS/JavaScript**：无框架依赖
-- **智能API调用**：优先Mozilla官方API，GitHub备用
+- **智能API调用**：仅使用Mozilla官方API，可靠稳定
 - **本地存储缓存**：localStorage实现24小时缓存
 - **自动定时更新**：每24小时静默检查新版本
 - **用户友好提示**：版本更新通知和状态显示
 
 ### API数据源
-1. **Mozilla Product Details API**（主要）
+1. **Mozilla Product Details API**（主要且唯一可靠源）
    ```
    https://product-details.mozilla.org/1.0/firefox_versions.json
    ```
 
-2. **GitHub Releases API**（备用）
-   ```
-   https://api.github.com/repos/mozilla/gecko-dev/releases/latest
-   ```
+2. **备用方案**：手动维护版本号
+   - 当API不可用时使用预设版本
+   - 定期手动更新或通过crontab脚本更新
 
 ### 下载链接生成
 基于Mozilla FTP服务器规律自动生成：
