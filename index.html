@@ -428,6 +428,10 @@
                 this.cacheKey = 'firefox_version_cache';
                 this.cacheExpiration = 24 * 60 * 60 * 1000; // 24小时（毫秒）
                 
+                // 自动更新配置
+                this.autoUpdateInterval = 24 * 60 * 60 * 1000; // 24小时检查一次
+                this.updateTimer = null;
+                
                 this.init();
             }
             
@@ -443,6 +447,9 @@
                     } else {
                         await this.getLatestVersion();
                     }
+                    
+                    // 启动自动更新定时器
+                    this.startAutoUpdate();
                 } catch (error) {
                     this.showError('获取版本信息失败: ' + error.message);
                 }
@@ -484,24 +491,18 @@
             showCacheInfo(timestamp) {
                 const cacheTime = new Date(timestamp);
                 const now = new Date();
-                const diffHours = Math.floor((now - cacheTime) / (1000 * 60 * 60));
-                const diffMinutes = Math.floor((now - cacheTime) / (1000 * 60));
+                const diffDays = Math.floor((now - cacheTime) / (1000 * 60 * 60 * 24));
                 
                 let timeText;
-                if (diffMinutes < 60) {
-                    if (diffMinutes < 1) {
-                        timeText = '刚刚';
-                    } else {
-                        timeText = `${diffMinutes}分钟前`;
-                    }
-                } else if (diffHours < 24) {
-                    timeText = `${diffHours}小时前`;
+                if (diffDays === 0) {
+                    timeText = '今天';
+                } else if (diffDays === 1) {
+                    timeText = '昨天';
                 } else {
-                    const diffDays = Math.floor(diffHours / 24);
                     timeText = `${diffDays}天前`;
                 }
                 
-                this.cacheInfoEl.textContent = `版本信息缓存于${timeText}`;
+                this.cacheInfoEl.textContent = `版本信息更新于${timeText}`;
                 this.cacheInfoEl.style.display = 'block';
             }
             
@@ -694,36 +695,103 @@
             }
             
             updateStatusWithTime(message) {
-                const now = new Date();
-                const timeString = now.toLocaleString('zh-CN', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                
                 // 先显示加载状态
                 this.statusTextEl.innerHTML = `<div class="loading">${message}</div>`;
                 
-                // 2秒后显示时间，再过1秒隐藏
+                // 2秒后隐藏状态
                 setTimeout(() => {
-                    this.statusTextEl.innerHTML = `<div class="update-time">最近更新：${timeString}</div>`;
-                    
-                    setTimeout(() => {
-                        this.statusTextEl.style.display = 'none';
-                    }, 1000);
+                    this.statusTextEl.style.display = 'none';
                 }, 2000);
             }
             
             showError(message) {
                 this.statusTextEl.innerHTML = `<div style="color: #ff6b6b;">${message}</div>`;
             }
+            
+            // 自动更新功能
+            startAutoUpdate() {
+                // 清除之前的定时器
+                if (this.updateTimer) {
+                    clearInterval(this.updateTimer);
+                }
+                
+                // 设置定时器，每24小时检查一次
+                this.updateTimer = setInterval(async () => {
+                    try {
+                        const cachedData = this.getCachedVersion();
+                        const currentVersion = cachedData ? cachedData.version : null;
+                        
+                        // 获取最新版本（静默更新，不显示加载状态）
+                        const latestVersion = await this.fetchLatestVersionSilently();
+                        
+                        // 如果版本不同，更新缓存和显示
+                        if (latestVersion && latestVersion !== currentVersion) {
+                            this.setCachedVersion(latestVersion);
+                            this.displayVersionInfo(latestVersion);
+                            await this.getDownloadLinks(latestVersion);
+                            this.showUpdateNotification(latestVersion);
+                        }
+                    } catch (error) {
+                        console.log('自动更新检查失败:', error.message);
+                    }
+                }, this.autoUpdateInterval);
+            }
+            
+            // 静默获取最新版本（不显示加载状态）
+            async fetchLatestVersionSilently() {
+                try {
+                    // 尝试 Mozilla Product Details API
+                    const response = await fetch('https://product-details.mozilla.org/1.0/firefox_versions.json');
+                    if (response.ok) {
+                        const data = await response.json();
+                        return data.LATEST_FIREFOX_VERSION || data.FIREFOX_NIGHTLY;
+                    }
+                } catch (error) {
+                    console.log('Mozilla API 失败:', error.message);
+                }
+                
+                try {
+                    // 备用：GitHub API
+                    const response = await fetch('https://api.github.com/repos/mozilla/gecko-dev/releases/latest');
+                    if (response.ok) {
+                        const data = await response.json();
+                        const versionMatch = data.tag_name.match(/(\d+\.\d+(?:\.\d+)?)/);
+                        if (versionMatch) {
+                            return versionMatch[1];
+                        }
+                    }
+                } catch (error) {
+                    console.log('GitHub API 失败:', error.message);
+                }
+                
+                return null;
+            }
+            
+            // 显示更新通知
+            showUpdateNotification(newVersion) {
+                this.statusTextEl.innerHTML = `<div style="color: #4CAF50;">🔄 已自动更新到 Firefox ${newVersion}</div>`;
+                setTimeout(() => {
+                    this.statusTextEl.style.display = 'none';
+                }, 5000);
+            }
+            
+            // 页面卸载时清理定时器
+            cleanup() {
+                if (this.updateTimer) {
+                    clearInterval(this.updateTimer);
+                    this.updateTimer = null;
+                }
+            }
         }
         
         // 页面加载完成后启动
         document.addEventListener('DOMContentLoaded', () => {
-            new FirefoxReleaseChecker();
+            const checker = new FirefoxReleaseChecker();
+            
+            // 页面卸载时清理定时器
+            window.addEventListener('beforeunload', () => {
+                checker.cleanup();
+            });
         });
     </script>
 </body>
