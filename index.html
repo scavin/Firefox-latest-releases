@@ -598,6 +598,7 @@
             
             generateDownloadLinks(version) {
                 const baseUrl = 'https://ftp.mozilla.org/pub/firefox/releases';
+                const androidBaseUrl = 'https://ftp.mozilla.org/pub/fenix/releases';
                 const downloads = [
                     {
                         name: 'Windows 64位',
@@ -618,6 +619,21 @@
                         name: 'Linux 64位',
                         url: `${baseUrl}/${version}/linux-x86_64/zh-CN/firefox-${version}.tar.bz2`,
                         platform: 'Linux x64'
+                    },
+                    {
+                        name: 'Android 目录',
+                        url: `${androidBaseUrl}/${version}/android/`,
+                        platform: 'Android (含多架构与语言)'
+                    },
+                    {
+                        name: 'Android (ARM64)',
+                        url: `${androidBaseUrl}/${version}/android/fenix-${version}.multi.android-arm64-v8a.apk`,
+                        platform: 'Android arm64-v8a'
+                    },
+                    {
+                        name: 'Android (ARMv7)',
+                        url: `${androidBaseUrl}/${version}/android/fenix-${version}.multi.android-armeabi-v7a.apk`,
+                        platform: 'Android armeabi-v7a'
                     }
                 ];
                 
