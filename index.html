@@ -164,6 +164,21 @@
             font-size: 0.9rem;
             margin-bottom: 14px;
         }
+
+        .download-group.desktop .download-item {
+            background: #1d2735;
+            border-color: #2e425f;
+        }
+        
+        .download-group.mobile .download-item {
+            background: #1e2a22;
+            border-color: #2f5137;
+        }
+        
+        .download-group.official .download-item {
+            background: #2b2230;
+            border-color: #5b3c64;
+        }
         
         .download-item {
             background: #1c1c1e;
@@ -683,18 +698,20 @@
                     {
                         title: '桌面端',
                         subtitle: 'Windows / macOS / Linux 官方安装包',
+                        type: 'desktop',
                         items: desktopDownloads
                     },
                     {
                         title: '移动端',
                         subtitle: 'Android APK 与目录（Fenix 发布）',
+                        type: 'mobile',
                         items: mobileDownloads
                     }
                 ];
                 
                 groups.forEach(group => {
                     const groupEl = document.createElement('div');
-                    groupEl.className = 'download-group';
+                    groupEl.className = `download-group ${group.type || ''}`;
                     
                     groupEl.innerHTML = `
                         <div class="download-group-title">${group.title}</div>
@@ -725,7 +742,7 @@
                 
                 // 官方渠道
                 const officialGroup = document.createElement('div');
-                officialGroup.className = 'download-group';
+                officialGroup.className = 'download-group official';
                 officialGroup.innerHTML = `
                     <div class="download-group-title">官方渠道</div>
                     <div class="download-group-subtitle">直接访问 Mozilla 官网获取最新版本</div>
