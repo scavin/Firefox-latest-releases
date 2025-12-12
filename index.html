@@ -192,6 +192,18 @@
             flex-direction: column;
             gap: 15px;
         }
+
+        .download-badge {
+            display: inline-block;
+            margin-left: 8px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: rgba(10, 132, 255, 0.18);
+            color: #a9cbff;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
         
         .download-item:hover {
             transform: translateY(-2px);
@@ -661,14 +673,15 @@
                 
                 const mobileDownloads = [
                     {
+                        name: 'Android (ARM64)',
+                        url: `${androidBaseUrl}/${version}/android/fenix-${version}.multi.android-arm64-v8a.apk`,
+                        platform: 'Android arm64-v8a • 大多数设备使用',
+                        recommended: true
+                    },
+                    {
                         name: 'Android 目录',
                         url: `${androidBaseUrl}/${version}/android/`,
                         platform: 'Android (含多架构与语言)'
-                    },
-                    {
-                        name: 'Android (ARM64)',
-                        url: `${androidBaseUrl}/${version}/android/fenix-${version}.multi.android-arm64-v8a.apk`,
-                        platform: 'Android arm64-v8a'
                     },
                     {
                         name: 'Android (ARMv7)',
@@ -725,9 +738,10 @@
                         const downloadItem = document.createElement('div');
                         downloadItem.className = 'download-item';
                         
+                        const badge = download.recommended ? '<span class="download-badge">推荐</span>' : '';
                         downloadItem.innerHTML = `
                             <div class="platform-info">
-                                <div class="platform-name">${download.name}</div>
+                                <div class="platform-name">${download.name} ${badge}</div>
                                 <div class="platform-details">${download.platform}</div>
                             </div>
                             <a href="${download.url}" class="download-btn" target="_blank" rel="noopener">下载</a>
